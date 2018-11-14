@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'flutter_candlesticks.dart';
+import 'KChartGraphWidget.dart';
 
 void main() => runApp(MyApp());
 
@@ -244,6 +244,37 @@ class MyApp extends StatelessWidget {
     for (var i = 0; i < originData.length; i++) {
       var map = new Map();
 
+      if (i >= 4) {
+        double sum = 0.0;
+        int j = 0;
+        for(; j <= 4; j++) {
+          sum = sum + originData[i-j][5];
+        }
+        map["average5"] = sum / 5.0;
+
+        if (i >= 9) {
+          for(; j <= 9; j++) {
+            sum = sum + originData[i-j][5];
+          }
+          map["average10"] = sum / 10.0;
+        }
+
+        if (i >= 19) {
+          for(; j <= 19; j++) {
+            sum = sum + originData[i-j][5];
+          }
+          map["average20"] = sum / 20.0;
+        }
+
+        if (i >= 59) {
+          for(; j <= 59; j++) {
+            sum = sum + originData[i-j][5];
+          }
+          map["average60"] = sum / 60.0;
+        }
+      }
+
+
       map['time'] = originData[i][0];
       map['volumeto'] = originData[i][1];
       map['open'] = originData[i][2];
@@ -258,7 +289,7 @@ class MyApp extends StatelessWidget {
           body: new Center(
             child: new Container(
               height: 300.0,
-              child: new OHLCVGraph(
+              child: new KChartGraphWidget(
                   data: stockData,
                   enableGridLines: true,
                   volumeProp: 0.16,

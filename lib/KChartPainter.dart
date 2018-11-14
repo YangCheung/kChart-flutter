@@ -1,7 +1,6 @@
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'flutter_candlesticks.dart';
+import 'KChartGraphWidget.dart';
 
 class KChartPainter extends CustomPainter {
   Paint _textBackgroundPaint;
@@ -19,8 +18,10 @@ class KChartPainter extends CustomPainter {
     @required this.increaseColor,
     @required this.decreaseColor,
     @required this.stateData,
+    @required this.rectWidth
   }) {
     _textBackgroundPaint = new Paint()..color = Colors.white;
+    init();
   }
 
   final List data;
@@ -35,13 +36,7 @@ class KChartPainter extends CustomPainter {
   final Color increaseColor;
   final Color decreaseColor;
 
-  StateData stateData;
-
-  double _min;
-  double _max;
-  double _realMin;
-  double _realMax;
-  double _maxVolume;
+  final StateData stateData;
 
   List<TextPainter> gridLineTextPainters = [];
   TextPainter maxVolumePainter;
@@ -52,8 +47,25 @@ class KChartPainter extends CustomPainter {
   TextStyle normalTextStyle;
   TextStyle crossHighLightTextStyle;
 
-  int _renderStartIndex = -1;
-  int _renderEndIndex = -1;
+  double rectWidth;
+  int offsetIndex = 0;
+
+  init() {
+    rectWidth = stateData.kRectWidth;
+
+    whiteLinePaint = new Paint()
+      ..color = Colors.amberAccent
+      ..strokeWidth = lineWidth;
+
+    normalTextStyle = new TextStyle(
+        color: Colors.black87, fontSize: 10.0, fontWeight: FontWeight.normal);
+
+    crossHighLightTextStyle = new TextStyle(
+        background: _textBackgroundPaint,
+        color: Colors.blueAccent,
+        fontSize: 10.0,
+        fontWeight: FontWeight.normal);
+  }
 
   numCommaParse(number) {
     return number.round().toString().replaceAllMapped(
@@ -73,106 +85,75 @@ class KChartPainter extends CustomPainter {
     return text;
   }
 
-  update() {
-    whiteLinePaint = new Paint()
-      ..color = Colors.amberAccent
-      ..strokeWidth = lineWidth;
+  update(Size size) {
+    print("size = ${size.toString()}");
 
-    normalTextStyle = new TextStyle(
-        color: Colors.black87, fontSize: 10.0, fontWeight: FontWeight.normal);
+    print("stateData.renderStartIndex =  ${stateData.renderStartIndex}; drawCount = ${stateData.drawCount}");
+    print("stateData.renderStartIndex =  ${stateData.max}; drawCount = ${stateData.min}");
+    double gridLineValue;
+    for (int i = 0; i < gridLineAmount; i++) {
+      gridLineValue = stateData.max - (((stateData.max - stateData.min) / (gridLineAmount - 1)) * i);
 
-    crossHighLightTextStyle = new TextStyle(
-        background: _textBackgroundPaint,
-        color: Colors.blueAccent,
-        fontSize: 10.0,
-        fontWeight: FontWeight.normal);
-
-//    if (_renderEndIndex == -1 || _renderStartIndex == -1) {
-//
-//    }
-
-    _min = double.infinity;
-    _max = -double.infinity;
-    _maxVolume = -double.infinity;
-    for (var i in data) {
-      if (i["high"] > _max) {
-        _max = i["high"].toDouble();
-      }
-      if (i["low"] < _min) {
-        _min = i["low"].toDouble();
-      }
-      if (i["volumeto"] > _maxVolume) {
-        _maxVolume = i["volumeto"].toDouble();
-      }
-    }
-
-    _realMax = _max;
-    _realMin = _min;
-
-    if (enableGridLines) {
-      double gridLineValue;
-      double offset = _realMax - _realMin;
-      _max = _realMax + offset * 0.1;
-      _min = _realMin - offset * 0.1;
-
-      for (int i = 0; i < gridLineAmount; i++) {
-        // Label grid lines
-        gridLineValue = _max - (((_max - _min) / (gridLineAmount - 1)) * i);
-
-        String gridLineText;
-        if (gridLineValue < 1) {
-          gridLineText = gridLineValue.toStringAsPrecision(4);
-        } else if (gridLineValue < 999) {
-          gridLineText = gridLineValue.toStringAsFixed(2);
-        } else {
-          gridLineText = gridLineValue.round().toString().replaceAllMapped(
-              new RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
-                  (Match m) => "${m[1]},");
-        }
-
-        gridLineTextPainters.add(new TextPainter(
-            text: new TextSpan(
-                text: labelPrefix + gridLineText, style: normalTextStyle),
-            textDirection: TextDirection.ltr));
-        gridLineTextPainters[i].layout();
+      String gridLineText;
+      if (gridLineValue < 1) {
+        gridLineText = gridLineValue.toStringAsPrecision(4);
+      } else if (gridLineValue < 999) {
+        gridLineText = gridLineValue.toStringAsFixed(2);
+      } else {
+        gridLineText = gridLineValue.round().toString().replaceAllMapped(
+            new RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
+            (Match m) => "${m[1]},");
       }
 
-      maxPainter = new TextPainter(
-          text: new TextSpan(text: _realMax.toString(), style: normalTextStyle),
-          textDirection: TextDirection.ltr);
-      maxPainter.layout();
-
-      minPainter = new TextPainter(
-          text: new TextSpan(text: _realMin.toString(), style: normalTextStyle),
-          textDirection: TextDirection.ltr);
-      minPainter.layout();
-
-      // Label volume line
-      maxVolumePainter = new TextPainter(
+      gridLineTextPainters.add(new TextPainter(
           text: new TextSpan(
-              text: numCommaParse(_maxVolume), style: normalTextStyle),
-          textDirection: TextDirection.ltr);
-      maxVolumePainter.layout();
+              text: labelPrefix + gridLineText, style: normalTextStyle),
+          textDirection: TextDirection.ltr));
+      gridLineTextPainters[i].layout();
     }
+
+    maxPainter = new TextPainter(
+        text: new TextSpan(text: stateData.realMax.toString(), style: normalTextStyle),
+        textDirection: TextDirection.ltr);
+    maxPainter.layout();
+
+    minPainter = new TextPainter(
+        text: new TextSpan(text: stateData.realMin.toString(), style: normalTextStyle),
+        textDirection: TextDirection.ltr);
+    minPainter.layout();
+
+    // Label volume line
+    maxVolumePainter = new TextPainter(
+        text: new TextSpan(
+            text: numCommaParse(stateData.maxVolume), style: normalTextStyle),
+        textDirection: TextDirection.ltr);
+    maxVolumePainter.layout();
   }
 
   @override
   void paint(Canvas canvas, Size size) {
-    if (data == null) {
+    print("paint size ${size.toString()}");
+    if (data == null || size.width.toInt() == 0 || size.height.toInt() == 0) {
       return;
     }
+    stateData.computeIndexWithSize(size);
 
-    if (_min == null || _max == null || _maxVolume == null) {
-      update();
+    if (stateData.requestOffsetData ||
+        maxVolumePainter == null ||
+        stateData.max == null ||
+        stateData.maxVolume == null) {
+      update(size);
     }
+
+    stateData.requestOffsetData = false;
+
     print("volumeProp = " + volumeProp.toString());
     final double volumeHeight = size.height * volumeProp;
-    final double volumeNormalizer = volumeHeight / _maxVolume;
+    final double volumeNormalizer = volumeHeight / stateData.maxVolume;
 
     double width = size.width;
     final double height = size.height * (1 - volumeProp) - 10;
 
-//    if (enableGridLines) {
     Paint gridPaint = new Paint()
       ..color = gridLineColor
       ..strokeWidth = gridLineWidth;
@@ -187,12 +168,9 @@ class KChartPainter extends CustomPainter {
           new Offset(0.0, gridLineY), new Offset(width, gridLineY), gridPaint);
     }
 
-    // Label volume line
     maxVolumePainter.paint(canvas, new Offset(0.0, gridLineY + 2.0));
-//    }
 
-    final double heightNormalizer = height / (_max - _min);
-    final double rectWidth = 7.0; //width / data.length;
+    final double heightNormalizer = height / (stateData.max - stateData.min);
 
     double rectLeft;
     double rectTop;
@@ -203,37 +181,94 @@ class KChartPainter extends CustomPainter {
 
     // Loop through all data
     stateData.clearKChartLineOffsets();
-    for (int i = 0; i < data.length; i++) {
+    print("paint_renderStartIndex = $stateData.renderStartIndex");
+    print("drawCount = ${stateData.drawCount}");
+
+    Path avg5path;
+    Path avg10path;
+    Path avg20path;
+    Path avg60path;
+
+    for (int i = 0; i < stateData.drawCount; i++) {
+      int dataIndex = stateData.renderStartIndex + i;
+
       rectLeft = (i * rectWidth) + lineWidth / 2;
       rectRight = ((i + 1) * rectWidth) - lineWidth / 2;
 
+      Map currentData = data[dataIndex];
+      var x = (i * rectWidth) + rectWidth / 2;
+      if (currentData["average5"] != null) {
+        print("currentData average5 = ${currentData["average5"]}");
+        var y = height - (currentData["average5"] - stateData.min) * heightNormalizer;
+        if (avg5path == null) {
+          avg5path = new Path();
+          avg5path.moveTo(x, y );
+          avg5path.lineTo(x, y );
+        } else {
+          avg5path.lineTo(x, y );
+        }
+      }
+
+      if (currentData["average10"] != null) {
+        var y = height - (currentData["average10"] - stateData.min) * heightNormalizer;
+        if (avg10path == null) {
+          avg10path = new Path();
+          avg10path.moveTo(x, y );
+          avg10path.lineTo(x, y );
+        } else {
+          avg10path.lineTo(x, y );
+        }
+      }
+
+      if (currentData["average20"] != null) {
+        var y = height - (currentData["average20"] - stateData.min) * heightNormalizer;
+        if (avg20path == null) {
+          avg20path = new Path();
+          avg20path.moveTo(x, y );
+          avg20path.lineTo(x, y );
+        } else {
+          avg20path.lineTo(x, y );
+        }
+      }
+
+      if (currentData["average60"] != null) {
+        var y = height - (currentData["average60"] - stateData.min) * heightNormalizer;
+        if (avg60path == null) {
+          avg60path = new Path();
+          avg60path.moveTo(x, y );
+          avg60path.lineTo(x, y );
+        } else {
+          avg60path.lineTo(x, y );
+        }
+      }
+
+
       double volumeBarTop = (height + volumeHeight) -
-          (data[i]["volumeto"] * volumeNormalizer - lineWidth / 2);
+          (data[dataIndex]["volumeto"] * volumeNormalizer - lineWidth / 2);
       double volumeBarBottom = height + volumeHeight + lineWidth / 2;
 
-      if (data[i]["open"] > data[i]["close"]) {
+      if (data[dataIndex]["open"] > data[dataIndex]["close"]) {
         // Draw candlestick if decrease
-        rectTop = height - (data[i]["open"] - _min) * heightNormalizer;
-        rectBottom = height - (data[i]["close"] - _min) * heightNormalizer;
+        rectTop = height - (data[dataIndex]["open"] - stateData.min) * heightNormalizer;
+        rectBottom = height - (data[dataIndex]["close"] - stateData.min) * heightNormalizer;
         rectPaint = new Paint()
           ..color = decreaseColor
           ..strokeWidth = lineWidth;
 
         Rect ocRect =
-        new Rect.fromLTRB(rectLeft, rectTop, rectRight, rectBottom);
+            new Rect.fromLTRB(rectLeft, rectTop, rectRight, rectBottom);
         canvas.drawRect(ocRect, rectPaint);
         stateData.add(ocRect);
-
         // Draw volume bars
         Rect volumeRect = new Rect.fromLTRB(
             rectLeft, volumeBarTop, rectRight, volumeBarBottom);
         canvas.drawRect(volumeRect, rectPaint);
       } else {
         // Draw candlestick if increase
-        rectTop = (height - (data[i]["close"] - _min) * heightNormalizer) +
-            lineWidth / 2;
-        rectBottom = (height - (data[i]["open"] - _min) * heightNormalizer) -
-            lineWidth / 2;
+        rectTop =
+            (height - (data[dataIndex]["close"] - stateData.min) * heightNormalizer) + lineWidth / 2;
+        rectBottom =
+            (height - (data[dataIndex]["open"] - stateData.min) * heightNormalizer) - lineWidth / 2;
         rectPaint = new Paint()
           ..color = increaseColor
           ..strokeWidth = lineWidth;
@@ -248,7 +283,7 @@ class KChartPainter extends CustomPainter {
             new Offset(rectRight - lineWidth / 2, rectTop), rectPaint);
 
         Rect ocRect =
-        new Rect.fromLTRB(rectLeft, rectTop, rectRight, rectBottom);
+            new Rect.fromLTRB(rectLeft, rectTop, rectRight, rectBottom);
         stateData.add(ocRect);
 
         // Draw volume bars
@@ -262,9 +297,12 @@ class KChartPainter extends CustomPainter {
             new Offset(rectRight - lineWidth / 2, volumeBarTop), rectPaint);
       }
 
+
+
       // Draw low/high candlestick wicks
-      double low = height - (data[i]["low"] - _min) * heightNormalizer;
-      double high = height - (data[i]["high"] - _min) * heightNormalizer;
+      double low = height - (data[dataIndex]["low"] - stateData.min) * heightNormalizer;
+      double high =
+          height - (data[dataIndex]["high"] - stateData.min) * heightNormalizer;
       canvas.drawLine(
           new Offset(rectLeft + rectWidth / 2 - lineWidth / 2, rectBottom),
           new Offset(rectLeft + rectWidth / 2 - lineWidth / 2, low),
@@ -274,9 +312,9 @@ class KChartPainter extends CustomPainter {
           new Offset(rectLeft + rectWidth / 2 - lineWidth / 2, high),
           rectPaint);
 
-      if (_realMin == data[i]["low"]) {
+      if (stateData.realMin == data[dataIndex]["low"]) {
         Offset offset =
-        new Offset(rectLeft + rectWidth / 2 - lineWidth / 2 - 15, low + 2);
+            new Offset(rectLeft + rectWidth / 2 - lineWidth / 2 - 15, low + 2);
         canvas.drawLine(
             offset,
             new Offset(rectLeft + rectWidth / 2 - lineWidth / 2, low + 2),
@@ -295,9 +333,9 @@ class KChartPainter extends CustomPainter {
                 low + 2 - minPainter.height / 2));
       }
 
-      if (_realMax == data[i]["high"]) {
+      if (stateData.realMax == data[dataIndex]["high"]) {
         Offset offset =
-        new Offset(rectLeft + rectWidth / 2 - lineWidth / 2 - 15, high - 2);
+            new Offset(rectLeft + rectWidth / 2 - lineWidth / 2 - 15, high - 2);
         canvas.drawLine(
             offset,
             new Offset(rectLeft + rectWidth / 2 - lineWidth / 2, high - 2),
@@ -316,6 +354,8 @@ class KChartPainter extends CustomPainter {
       }
     }
 
+
+
     for (int i = 0; i < gridLineAmount; i++) {
       gridLineY = (gridLineDist * i).round().toDouble();
 
@@ -328,12 +368,34 @@ class KChartPainter extends CustomPainter {
       }
     }
 
-    print("stateData.getLongPressed() = " +
-        stateData.getLongPressed().toString());
+    Paint avgPaint = new Paint()
+      ..color = Colors.black;
+    avgPaint.strokeJoin = StrokeJoin.round;
+    avgPaint.style = PaintingStyle.stroke;
+    canvas.drawPath(avg5path, avgPaint);
+
+    Paint avg10Paint = new Paint()
+      ..color = Colors.amber;
+    avg10Paint.strokeJoin = StrokeJoin.round;
+    avg10Paint.style = PaintingStyle.stroke;
+    canvas.drawPath(avg10path, avg10Paint);
+
+    Paint avg20Paint = new Paint()
+      ..color = Colors.pinkAccent;
+    avg20Paint.strokeJoin = StrokeJoin.round;
+    avg20Paint.style = PaintingStyle.stroke;
+    canvas.drawPath(avg20path, avg20Paint);
+
+    Paint avg60Paint = new Paint()
+      ..color = Colors.blueAccent;
+    avg60Paint.strokeJoin = StrokeJoin.round;
+    avg60Paint.style = PaintingStyle.stroke;
+    canvas.drawPath(avg60path, avg60Paint);
+
     if (stateData.getLongPressed()) {
-      if (stateData.currentIndex >= 0 && stateData.currentIndex < data.length) {
-        DateTime dateD = new DateTime.fromMillisecondsSinceEpoch(
-            data[stateData.currentIndex]["time"]);
+      var pressedIndex = stateData.currentIndex + stateData.renderStartIndex;
+      if (pressedIndex >= 0 && pressedIndex < data.length) {
+        DateTime dateD = new DateTime.fromMillisecondsSinceEpoch(data[pressedIndex]["time"]);
         TextPainter datePainter = new TextPainter(
             text: new TextSpan(
                 text: "${dateD.year}-${dateD.month}-${dateD.day}",
@@ -347,14 +409,13 @@ class KChartPainter extends CustomPainter {
       }
 
       Paint crossPaint = new Paint()
-        ..color = Colors.black
-        ..strokeWidth = 1.0;
+        ..color = Colors.black;
       //draw touch y line
       var crossY = stateData.offset.dy > height + volumeHeight
           ? height + volumeHeight
           : stateData.offset.dy;
 
-      double currentPrice = _min + (_max - _min) * (height - crossY) / height;
+      double currentPrice = stateData.min + (stateData.max - stateData.min) * (height - crossY) / height;
       TextPainter vertical = new TextPainter(
           text: new TextSpan(
               text: priceStr(currentPrice), style: crossHighLightTextStyle),
@@ -369,19 +430,20 @@ class KChartPainter extends CustomPainter {
       canvas.drawLine(new Offset(stateData.offset.dx, 0.0),
           new Offset(stateData.offset.dx, height + volumeHeight), crossPaint);
     }
-//    stateData.clearRepaintState();
   }
 
   @override
-  bool shouldRepaint(_OHLCVPainter old) {
-    return data != old.data ||
-        lineWidth != old.lineWidth ||
-        enableGridLines != old.enableGridLines ||
-        gridLineColor != old.gridLineColor ||
-        gridLineAmount != old.gridLineAmount ||
-        gridLineWidth != old.gridLineWidth ||
-        volumeProp != old.volumeProp ||
-        gridLineLabelColor != old.gridLineLabelColor ||
-        stateData.needRepaint;
+  bool shouldRepaint(KChartPainter old) {
+    return true;
+//    return data != old.data ||
+//        lineWidth != old.lineWidth ||
+//        enableGridLines != old.enableGridLines ||
+//        gridLineColor != old.gridLineColor ||
+//        gridLineAmount != old.gridLineAmount ||
+//        gridLineWidth != old.gridLineWidth ||
+//        volumeProp != old.volumeProp ||
+//        gridLineLabelColor != old.gridLineLabelColor ||
+//        stateData.requestOffsetData ||
+//        stateData.getLongPressed();
   }
 }
