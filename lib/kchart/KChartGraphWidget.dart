@@ -2,8 +2,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
 
-import 'KChartPainter.dart';
-import 'DelayMoveGestureRecognizer.dart';
+import 'package:stock_k_chart_flutter/kchart/KChartPainter.dart';
+import '../DelayMoveGestureRecognizer.dart';
 
 class KChartGraphWidget extends StatefulWidget {
   KChartGraphWidget(
@@ -228,8 +228,6 @@ class KChartState extends State<KChartGraphWidget> {
 
   @override
   Widget build(BuildContext context) {
-    debugPrint("----KChartState build---");
-
     kCharPainter = new KChartPainter(
         data: data,
         lineWidth: 1.0,

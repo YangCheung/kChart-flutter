@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'KChartGraphWidget.dart';
+import 'package:stock_k_chart_flutter/kchart/KChartGraphWidget.dart';
 
 class KChartPainter extends CustomPainter {
   Paint _textBackgroundPaint;
@@ -18,7 +18,6 @@ class KChartPainter extends CustomPainter {
     @required this.increaseColor,
     @required this.decreaseColor,
     @required this.stateData,
-    @required this.rectWidth
   }) {
     _textBackgroundPaint = new Paint()..color = Colors.white;
     init();
