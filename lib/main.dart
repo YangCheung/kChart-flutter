@@ -3,9 +3,10 @@ import 'package:stock_k_chart_flutter/kchart/KChartGraphWidget.dart';
 import 'package:flutter/rendering.dart';
 import 'page/StockDetailPage.dart';
 import 'page/HotIndustryPage.dart';
+import 'page/StockListPage.dart';
 
 void main(){
-//  debugPaintSizeEnabled=true;
+  debugPaintSizeEnabled=true;
 //  debugPaintPointersEnabled = true;
   runApp(App());
 }
@@ -16,7 +17,7 @@ class App extends StatelessWidget {
     return MaterialApp(
       title: 'Title',
 //      theme: kThemeData,
-      home: HotIndustryPage(),
+      home: StockListPage(),
     );
   }
 }

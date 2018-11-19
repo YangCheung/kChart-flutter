@@ -112,38 +112,6 @@ class ListState extends State<StockListView> {
   Widget separatorBuilder(BuildContext context, int index) {
     return Divider(color: Color(0xFFEAEAEA), height: 0);
   }
-
-  Widget stockCell() {
-    return Container(
-      color: Colors.white,
-      height: 54,
-      padding: EdgeInsets.fromLTRB(15, 8, 15, 8),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: <Widget>[
-          Expanded(
-              child: Text('黄金',
-                  style: TextStyle(
-                      color: Color(0xFF333333),
-                      fontSize: 17,
-                      fontWeight: FontWeight.bold))),
-          Expanded(
-            child: Text(
-              '+2.73%',
-              style: TextStyle(color: Color(0xFFC13333), fontSize: 18),
-              textAlign: TextAlign.right,
-            ),
-          ),
-          Expanded(
-              child: Text(
-            '刚泰控股',
-            style: TextStyle(color: Color(0xFF333333), fontSize: 17),
-            textAlign: TextAlign.right,
-          ))
-        ],
-      ),
-    );
-  }
 }
 
 class _StockCell extends StatelessWidget {
