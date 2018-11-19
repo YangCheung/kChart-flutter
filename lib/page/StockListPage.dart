@@ -3,6 +3,7 @@ import 'package:stock_k_chart_flutter/model/StockModel.dart';
 import 'package:http/http.dart' as Http;
 import 'dart:async';
 import 'dart:convert';
+import 'package:stock_k_chart_flutter/componets/TYStockValueText.dart';
 
 List stockList = [];
 
@@ -14,9 +15,8 @@ class StockListPage extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0.0,
-        title: Text(
-        '涨幅榜',
-        style: TextStyle(color: Colors.black, fontSize: 18),
+        title: Text('涨幅榜',
+          style: TextStyle(color: Colors.black, fontSize: 18),
         ),
       ),
       body: Container(
@@ -135,9 +135,8 @@ class StockCell extends StatelessWidget {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: <Widget>[
-                        new Image(
-                          image: new AssetImage('images/general_US_logo@3x.png'),
-                          width: 18,
+                        TypeImage(
+                          this.stock.mktType
                         ),
                         Text(this.stock.code,
                             style: TextStyle(
@@ -166,13 +165,15 @@ class StockCell extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: <Widget>[
-                    Text(this.stock.changePercent,
-                      style: TextStyle(color: Color(0xFFC13333), fontSize: 18),
-                      textAlign: TextAlign.right,
+                    TYStockValueText(this.stock.changePercent,
+                      true,
+                      style: TextStyle(fontSize: 18),
+                      textAlign: TextAlign.center,
                     ),
-                    Text(this.stock.changePercent,
-                      style: TextStyle(color: Color(0xFF333333), fontSize: 18),
-                      textAlign: TextAlign.right,
+                    TYStockValueText(this.stock.change,
+                      false,
+                      style: TextStyle(fontSize: 18),
+                      textAlign: TextAlign.right
                     )
                   ],
                 ),
@@ -200,5 +201,29 @@ Future<List> getStockList() async {
     return returnList;
   } else {
     throw Exception('========== >>>>> Failed to load post');
+  }
+}
+
+class TypeImage extends StatelessWidget {
+  final String type;
+  TypeImage(this.type, {Key key}) : super(key : key);
+
+  @override
+  Widget build(BuildContext context) {
+    AssetImage assetImage;
+
+    if (type == 'HK') {
+      assetImage = AssetImage('images/general_US_logo@3x.png');
+    } else if (type == 'SH') {
+      assetImage = AssetImage('images/general_SH_logo@3x.png');
+    } else if (type == 'SZ') {
+      assetImage = AssetImage('images/general_SZ_logo@3x.png');
+    } else if (type != null && type != '') {
+      assetImage = AssetImage('images/general_US_logo@3x.png');
+    }
+    return Image(
+      image: assetImage,
+      width: 18,
+    );
   }
 }
