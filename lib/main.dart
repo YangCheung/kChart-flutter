@@ -6,7 +6,7 @@ import 'page/HotIndustryPage.dart';
 import 'page/StockListPage.dart';
 
 void main(){
-//  debugPaintSizeEnabled=true;
+  debugPaintSizeEnabled=true;
 //  debugPaintPointersEnabled = true;
   runApp(App());
 }
@@ -17,7 +17,7 @@ class App extends StatelessWidget {
     return MaterialApp(
       title: 'Title',
 //      theme: kThemeData,
-      home: StockListPage(),
+      home: StockDetailPage(),
     );
   }
 }
