@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 import 'KChartPage.dart';
 import 'KChartForDetailPage.dart';
+import 'KDetailBottomView.dart';
 
 class StockDetailPage extends StatelessWidget {
   @override
@@ -37,7 +38,8 @@ class StockDetailPage extends StatelessWidget {
         child: new Column(
           children: <Widget>[
             StockValueFrame(),
-            KChartDetailPageWidget()
+            KChartDetailPageWidget(),
+            KDetailBottomView()
           ],
         ),
       ),
