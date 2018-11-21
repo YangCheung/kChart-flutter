@@ -6,7 +6,7 @@ import 'page/HotIndustryPage.dart';
 import 'page/StockListPage.dart';
 
 void main(){
-  debugPaintSizeEnabled=true;
+//  debugPaintSizeEnabled=true;
 //  debugPaintPointersEnabled = true;
   runApp(App());
 }

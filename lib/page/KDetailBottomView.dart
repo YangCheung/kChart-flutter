@@ -19,7 +19,7 @@ class _KDetailBottomViewState extends State<KDetailBottomView> {
   Widget build(BuildContext context) {
     return DefaultTabController(
       length: myTabs.length,
-      initialIndex: 1,
+      initialIndex: 0,
       child: Container(
 //        height: 100,
         child: Column(
