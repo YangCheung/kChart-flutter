@@ -34,12 +34,15 @@ class StockDetailPage extends StatelessWidget {
           ],
         ),
       ),
-      body: new Container(
-        child: new Column(
+      body: Container(
+        child: ListView(
           children: <Widget>[
             StockValueFrame(),
             KChartDetailPageWidget(),
-            KDetailBottomView()
+            Container(
+              height: 800,
+              child: KDetailBottomView(),
+            )
           ],
         ),
       ),
