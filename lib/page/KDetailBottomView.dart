@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'KStockOverview.dart';
 
 class KDetailBottomView extends StatefulWidget {
   @override
@@ -18,7 +19,7 @@ class _KDetailBottomViewState extends State<KDetailBottomView> {
   Widget build(BuildContext context) {
     return DefaultTabController(
       length: myTabs.length,
-      initialIndex: 1,
+      initialIndex: 0,
       child: Container(
 //        height: 100,
         child: Column(
@@ -42,8 +43,7 @@ class _KDetailBottomViewState extends State<KDetailBottomView> {
                 children: <Widget>[
                   Container(
                     height: 1000,
-
-                    child: Center(child: Text("1"),)
+                    child: KStockOverview()
                   ),
                   Text("2"),
                   Text("3"),
