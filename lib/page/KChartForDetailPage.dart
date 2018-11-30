@@ -11,16 +11,18 @@ class KChartDetailPageWidgetState extends State<KChartDetailPageWidget> {
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length: 6,
+      length: 5,
       initialIndex: 1,
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: <Widget>[
           TabBar(
             indicatorColor: Color(0xff1478F0),
             indicatorWeight: 3,
             unselectedLabelColor: Color(0xFF999999),
             labelColor: Color(0xFF333333),
-            unselectedLabelStyle: TextStyle(fontWeight: FontWeight.normal, fontSize: 15.0),
+            unselectedLabelStyle:
+                TextStyle(fontWeight: FontWeight.normal, fontSize: 15.0),
             labelStyle: TextStyle(fontWeight: FontWeight.w500, fontSize: 15.0),
             labelPadding: EdgeInsets.symmetric(vertical: 5.0),
             indicatorPadding: EdgeInsets.fromLTRB(2, 0, 2, 0),
@@ -33,13 +35,17 @@ class KChartDetailPageWidgetState extends State<KChartDetailPageWidget> {
               const Text("月K"),
             ],
           ),
-          KCharMainFrameWidget()
+//
+//            Container(
+//              height: 200,
+//              child:
+//            )
+          KCharMainFrameWidget(),
         ],
       ),
     );
   }
 }
-
 
 class KCharMainFrameWidget extends StatefulWidget {
   const KCharMainFrameWidget({
@@ -58,21 +64,19 @@ class _KCharMainFrameWidgetState extends State<KCharMainFrameWidget> {
   int _currentIndex;
 
   void _updateTabController() {
-    final TabController newController = widget.controller ?? DefaultTabController.of(context);
+    final TabController newController =
+        widget.controller ?? DefaultTabController.of(context);
     assert(() {
       if (newController == null) {
-        throw FlutterError(
-            'No TabController for ${widget.runtimeType}.\n'
-                'When creating a ${widget.runtimeType}, you must either provide an explicit '
-                'TabController using the "controller" property, or you must ensure that there '
-                'is a DefaultTabController above the ${widget.runtimeType}.\n'
-                'In this case, there was neither an explicit controller nor a default controller.'
-        );
+        throw FlutterError('No TabController for ${widget.runtimeType}.\n'
+            'When creating a ${widget.runtimeType}, you must either provide an explicit '
+            'TabController using the "controller" property, or you must ensure that there '
+            'is a DefaultTabController above the ${widget.runtimeType}.\n'
+            'In this case, there was neither an explicit controller nor a default controller.');
       }
       return true;
     }());
-    if (newController == _controller)
-      return;
+    if (newController == _controller) return;
 
     if (_controller != null) {
       _controller.removeListener(_handleTabControllerTick);
@@ -110,15 +114,12 @@ class _KCharMainFrameWidgetState extends State<KCharMainFrameWidget> {
     }
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 200,
-      width: double.infinity,
-      color: Colors.grey,
-      child: new Text("_currentIndex = $_currentIndex")
-    );
+        height: 200,
+        width: double.infinity,
+        color: Colors.grey,
+        child: new Text("_currentIndex = $_currentIndex"));
   }
 }
-

@@ -23,31 +23,41 @@ class StockQuoteModel {
   final double max52;
   final double min52;
 
-  StockQuoteModel({
-    this.stockCode,
-    this.stockName,
-    this.jys,
-    this.exchange,
-    this.changePercent,
-    this.trade,
-    this.open,
-    this.high,
-    this.low,
-    this.settlement,
-    this.volume,
-    this.turnOverRatio,
-    this.amount,
-    this.pe_ttm,
-    this.pb,
-    this.mktcap,
-    this.nmc,
-    this.tradingPhaseCode,
-    this.updateTime,
-    this.totalCapital,
-    this.flowCapital,
-    this.max52,
-    this.min52
-  });
+  String tradeStatus() {
+    switch (tradingPhaseCode) {
+      case "0":
+        return "交易中";
+      case "-1":
+        return "已停牌";
+      default:
+        return "已收盘";
+    }
+  }
+
+  StockQuoteModel(
+      {this.stockCode,
+      this.stockName,
+      this.jys,
+      this.exchange = "",
+      this.changePercent = 0,
+      this.trade,
+      this.open,
+      this.high,
+      this.low,
+      this.settlement,
+      this.volume,
+      this.turnOverRatio,
+      this.amount,
+      this.pe_ttm,
+      this.pb,
+      this.mktcap,
+      this.nmc,
+      this.tradingPhaseCode,
+      this.updateTime,
+      this.totalCapital,
+      this.flowCapital,
+      this.max52,
+      this.min52});
 
   factory StockQuoteModel.fromJson(Map<String, dynamic> json) {
     return StockQuoteModel(
@@ -73,7 +83,6 @@ class StockQuoteModel {
         totalCapital: json['totalCapital'],
         flowCapital: json['flowCapital'],
         max52: json['max52'],
-        min52: json['min52']
-    );
+        min52: json['min52']);
   }
 }

@@ -5,20 +5,28 @@ import 'dart:convert';
 import 'package:stock_k_chart_flutter/model/StockQuoteModel.dart';
 
 class KStockOverview extends StatelessWidget {
+  KStockOverview(this.model): super();
+  final StockQuoteModel model;
+
   @override
   Widget build(BuildContext context) {
-    return Container(
-      color: Colors.white,
-      child: FutureBuilder(
-          future: getStockQuote(),
-          builder:(BuildContext context, AsyncSnapshot snapshot) {
-            if (snapshot.data != null) {
-              return _StockQuoteView(snapshot.data);
-            } else {
-              return Text('Data is Null');
-            }
-          })
-    );
+    if (model != null && model.open != null && model.volume != null) {
+      return _StockQuoteView(model);
+    } else {
+      return Text('Data is Null');
+    }
+//    return Container(
+//      color: Colors.white,
+//      child: FutureBuilder(
+//          future: getStockQuote(),
+//          builder:(BuildContext context, AsyncSnapshot snapshot) {
+//            if (snapshot.data != null) {
+//              return _StockQuoteView(snapshot.data);
+//            } else {
+//              return Text('Data is Null');
+//            }
+//          })
+//    );
   }
 }
 
